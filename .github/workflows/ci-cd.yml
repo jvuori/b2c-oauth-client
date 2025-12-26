@@ -1,0 +1,170 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+
+      - name: Run tests
+        run: |
+          if [ -d "tests" ] && [ "$(ls -A tests/*.py 2>/dev/null)" ]; then
+            uv run pytest tests/ --cov=src/b2c_oauth_client --cov-report=xml --cov-report=term-missing
+          else
+            echo "No tests directory found, skipping tests"
+          fi
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --dev
+
+      - name: Run ruff check
+        run: |
+          uv run ruff check src/ examples/
+
+      - name: Run ruff format check
+        run: |
+          uv run ruff format --check src/ examples/
+
+      - name: Run mypy
+        run: |
+          uv run mypy src/
+
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/b2c-oauth-client
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Update version in pyproject.toml
+        run: |
+          uv run python -c "
+          import re
+
+          version = '${{ steps.version.outputs.version }}'
+
+          with open('pyproject.toml', 'r') as f:
+              content = f.read()
+
+          # Update version in pyproject.toml
+          content = re.sub(r'version = \"[^\"]+\"', f'version = \"{version}\"', content)
+
+          with open('pyproject.toml', 'w') as f:
+              f.write(content)
+
+          print(f'Updated version to {version} in pyproject.toml')
+          "
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+
+      - name: Build package
+        run: |
+          uv build
+
+      - name: Request OIDC token
+        id: oidc
+        run: |
+          uv run python -c "
+          import os
+          import json
+          import urllib.request
+
+          token_request_token = os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']
+          token_request_url = os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']
+
+          req = urllib.request.Request(
+              f'{token_request_url}&audience=pypi',
+              headers={'Authorization': f'bearer {token_request_token}'}
+          )
+
+          with urllib.request.urlopen(req) as response:
+              token_data = json.loads(response.read())
+              token = token_data['value']
+              print(f'::add-mask::{token}')
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  print(f'token={token}', file=f)
+          "
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ secrets.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ secrets.ACTIONS_ID_TOKEN_REQUEST_URL }}
+
+      - name: Publish to PyPI
+        run: |
+          uv publish --token ${{ steps.oidc.outputs.token }}
