@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
     tags:
-      - "v*"
+      - "*"
   pull_request:
     branches: [main, master]
 
@@ -85,7 +85,7 @@ jobs:
     name: Publish to PyPI
     runs-on: ubuntu-latest
     needs: [test, lint]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/')
     environment:
       name: pypi
       url: https://pypi.org/p/b2c-oauth-client
@@ -107,9 +107,15 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Remove 'v' prefix if present
+          if [[ "$TAG_NAME" == v* ]]; then
+            VERSION=${TAG_NAME#v}
+          else
+            VERSION=$TAG_NAME
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+          echo "Extracted version: $VERSION from tag: $TAG_NAME"
 
       - name: Update version in pyproject.toml
         run: |
