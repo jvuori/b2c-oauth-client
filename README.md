@@ -233,7 +233,7 @@ except AuthenticationError as e:
 
 ```bash
 # Clone repository
-git clone https://github.com/jaakkovuori/b2c-oauth-client.git
+git clone https://github.com/jvuori/b2c-oauth-client.git
 cd b2c-oauth-client
 
 # Install with development dependencies using uv
@@ -261,11 +261,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This library is provided "as-is" without warranty. For issues or questions:
 
-- Open an issue on [GitHub Issues](https://github.com/jaakkovuori/b2c-oauth-client/issues)
+- Open an issue on [GitHub Issues](https://github.com/jvuori/b2c-oauth-client/issues)
 - Review the documentation
 - Check [Azure B2C official documentation](https://learn.microsoft.com/en-us/azure/active-directory-b2c/)
 
 ## Links
 
-- **Repository**: [GitHub](https://github.com/jaakkovuori/b2c-oauth-client)
-- **Issues**: [GitHub Issues](https://github.com/jaakkovuori/b2c-oauth-client/issues)
+- **Repository**: [GitHub](https://github.com/jvuori/b2c-oauth-client)
+- **Issues**: [GitHub Issues](https://github.com/jvuori/b2c-oauth-client/issues)
