@@ -77,9 +77,9 @@ jobs:
         run: |
           uv run ruff format --check src/ examples/
 
-      - name: Run mypy
+      - name: Run ty check
         run: |
-          uv run mypy src/
+          uv run ty check src/
 
   publish:
     name: Publish to PyPI

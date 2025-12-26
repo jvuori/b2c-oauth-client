@@ -42,7 +42,7 @@ The project uses OpenID Connect (OIDC) for secure authentication from GitHub Act
 
 - **Formatter**: Ruff (Black-compatible formatting)
 - **Linter**: Ruff with strict rules
-- **Type checker**: MyPy in strict mode
+- **Type checker**: ty (extremely fast type checker written in Rust, from Astral)
 - **Line length**: 88 characters (Black default)
 - **Quotes**: Double quotes (configured in `[tool.ruff.format]`)
 - **Python version**: 3.10+ (type hints use modern syntax)
@@ -52,7 +52,7 @@ The project uses OpenID Connect (OIDC) for secure authentication from GitHub Act
 - **Lint**: `uv run ruff check src/ examples/`
 - **Format check**: `uv run ruff format --check src/ examples/`
 - **Format code**: `uv run ruff format src/ examples/`
-- **Type check**: `uv run mypy src/`
+- **Type check**: `uv run ty check src/`
 
 All checks must pass before committing. The CI runs these automatically.
 
@@ -70,7 +70,7 @@ The CI workflow handles missing test directories gracefully, but tests should be
 
 1. **Sync dependencies**: `uv sync --dev`
 2. **Make changes**: Edit code in `src/b2c_oauth_client/`
-3. **Run checks**: `uv run ruff check src/ && uv run ruff format --check src/ && uv run mypy src/`
+3. **Run checks**: `uv run ruff check src/ && uv run ruff format --check src/ && uv run ty check src/`
 4. **Run tests**: `uv run pytest` (if tests exist)
 5. **Commit**: Ensure all checks pass locally before committing
 
@@ -94,7 +94,7 @@ The CI workflow handles missing test directories gracefully, but tests should be
 The `.github/workflows/ci-cd.yml` workflow runs:
 
 1. **Test job**: Installs deps with `uv sync --frozen`, runs pytest if tests exist
-2. **Lint job**: Runs ruff check, ruff format check, and mypy
+2. **Lint job**: Runs ruff check, ruff format check, and ty check
 3. **Publish job**: Only runs on tags, builds and publishes to PyPI using OIDC
 
 All jobs cache `~/.cache/uv` for faster builds.

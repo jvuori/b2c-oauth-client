@@ -32,7 +32,7 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
-    "mypy>=1.5.0",
+    "ty>=0.0.7",
     "types-requests>=2.31.0",
 ]
 
@@ -42,7 +42,7 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
-    "mypy>=1.5.0",
+    "ty>=0.0.7",
     "types-requests>=2.31.0",
 ]
 
@@ -68,11 +68,9 @@ ignore = ["E501", "B904", "B017", "C901"]
 quote-style = "double"
 indent-style = "space"
 
-[tool.mypy]
-strict = true
-warn_return_any = true
-python_version = "3.10"
-disallow_any_unimported = false
+[tool.ty]
+# ty configuration - see https://docs.astral.sh/ty/configuration/
+# ty is extremely fast and provides comprehensive type checking
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
