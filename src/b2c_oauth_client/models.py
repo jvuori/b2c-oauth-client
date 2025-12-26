@@ -14,4 +14,3 @@ class AuthToken:
     refresh_token: str | None
     expires_at: datetime
     token_type: str = "Bearer"
-

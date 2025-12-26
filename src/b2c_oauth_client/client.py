@@ -168,4 +168,3 @@ class B2COAuthClient:
             True if token is valid, False otherwise
         """
         return datetime.now() < token.expires_at - timedelta(minutes=buffer_minutes)
-

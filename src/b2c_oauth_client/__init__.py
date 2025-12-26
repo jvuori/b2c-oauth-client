@@ -10,14 +10,14 @@ or connected to Microsoft Corporation or any specific Azure B2C tenant.
 
 Basic usage:
     >>> from b2c_oauth_client import B2COAuthClient, AuthenticationError
-    >>> 
+    >>>
     >>> client = B2COAuthClient(
     ...     tenant="your-tenant.onmicrosoft.com",
     ...     client_id="your-client-id",
     ...     policy="B2C_1_YourPolicy",
     ...     scope="https://your-tenant.onmicrosoft.com/your-api/your.scope openid profile offline_access"
     ... )
-    >>> 
+    >>>
     >>> try:
     ...     token = client.refresh_token("your_refresh_token")
     ...     print(f"Access token: {token.access_token[:50]}...")
@@ -38,4 +38,3 @@ __all__ = [
     "AuthenticationError",
     "B2COAuthError",
 ]
-

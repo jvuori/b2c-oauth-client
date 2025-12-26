@@ -21,4 +21,3 @@ class ConfigurationError(B2COAuthError):
     """Raised when configuration is invalid."""
 
     pass
-
