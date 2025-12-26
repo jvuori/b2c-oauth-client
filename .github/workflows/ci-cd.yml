@@ -144,33 +144,6 @@ jobs:
         run: |
           uv build
 
-      - name: Request OIDC token
-        id: oidc
-        run: |
-          uv run python -c "
-          import os
-          import json
-          import urllib.request
-
-          token_request_token = os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']
-          token_request_url = os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']
-
-          req = urllib.request.Request(
-              f'{token_request_url}&audience=pypi',
-              headers={'Authorization': f'bearer {token_request_token}'}
-          )
-
-          with urllib.request.urlopen(req) as response:
-              token_data = json.loads(response.read())
-              token = token_data['value']
-              print(f'::add-mask::{token}')
-              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-                  print(f'token={token}', file=f)
-          "
-        env:
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ secrets.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
-          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ secrets.ACTIONS_ID_TOKEN_REQUEST_URL }}
-
       - name: Publish to PyPI
         run: |
-          uv publish --token ${{ steps.oidc.outputs.token }}
+          uv publish dist/*
