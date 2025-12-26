@@ -177,7 +177,7 @@ def main() -> None:
     parser.add_argument(
         "--resolution",
         default="PT1H",
-        help="Time resolution (PT1H, PT15M, etc.), defaults to PT1H",
+        help="Time resolution (PT1H, PT15MIN, etc.), defaults to PT1H",
     )
 
     args = parser.parse_args()
